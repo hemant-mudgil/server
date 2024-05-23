@@ -62,6 +62,8 @@ chmod -R 755 /var/www/html
 systemctl reload sshd
 systemctl reload ssh
 
+https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+dpkg -i cloudflared-linux-amd64.deb
 
 sudo ufw allow in "Apache"
 
