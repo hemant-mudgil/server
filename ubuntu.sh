@@ -69,8 +69,19 @@ ufw allow 'Apache'
 # Create MariaDB user and grant privileges
 mariadb -e "CREATE USER 'muser'@'localhost' IDENTIFIED BY 'muser'; GRANT ALL PRIVILEGES ON *.* TO 'muser'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
-https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-dpkg -i cloudflared-linux-amd64.deb
+# Download cloudflared package
+CLOUDFLARED_URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb"
+CLOUDFLARED_DEB="cloudflared-linux-amd64.deb"
+
+echo "Downloading cloudflared package..."
+if wget -O $CLOUDFLARED_DEB $CLOUDFLARED_URL; then
+    echo "Download successful, installing cloudflared..."
+    sudo dpkg -i $CLOUDFLARED_DEB
+    rm $CLOUDFLARED_DEB
+else
+    echo "Failed to download cloudflared package. Exiting."
+    exit 1
+fi
 
 sudo ufw allow in "Apache"
 
