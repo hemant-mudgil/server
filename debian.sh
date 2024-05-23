@@ -24,10 +24,15 @@ sudo sed -i '/<Directory \/var\/www\/html>/,/<\/Directory>/ s/AllowOverride None
 
 sudo sed -i 's/DirectoryIndex .*/DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm/g' /etc/apache2/mods-enabled/dir.conf
 
-https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-english.zip
-unzip phpMyAdmin-5.2.1-english.zip
-mv phpMyAdmin-5.2.1-english /var/www/html/pma
-rm phpMyAdmin-5.2.1-english.zip
+sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+mkdir -p /var/www/html/pma && \
+wget https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-english.zip && \
+unzip phpMyAdmin-5.2.1-english.zip && \
+shopt -s dotglob && mv phpMyAdmin-5.2.1-english/* /var/www/html/pma/ && \
+rm -rf phpMyAdmin-5.2.1-english phpMyAdmin-5.2.1-english.zip
+
 
 # Set correct permissions for /var/www/html
 chown -R www-data:www-data /var/www/html
