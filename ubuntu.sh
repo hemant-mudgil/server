@@ -56,6 +56,11 @@ ufw allow 'Apache'
 # Create MariaDB user and grant privileges
 mariadb -e "CREATE USER 'muser'@'localhost' IDENTIFIED BY 'muser'; GRANT ALL PRIVILEGES ON *.* TO 'muser'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
+https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+dpkg -i cloudflared-linux-amd64.deb
+
+sudo ufw allow in "Apache"
+
 # Prompt for setting root password
 passwd
 
