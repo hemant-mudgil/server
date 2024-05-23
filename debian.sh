@@ -5,35 +5,12 @@
 apt update -y
 apt upgrade -y
 
-apt install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg curl unzip
+apt install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg curl unzip apache2 mariadb-server lighttpd redis python3 build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget openssh-server
 #apt install -y software-properties-common
 #add-apt-repository ppa:ondrej/php
 
-# Install Apache
-apt install -y apache2
-
-# Install MySQL
-apt install -y mariadb-server
-
-# Install Lighttpd
-apt install -y lighttpd
-
-# Install Lighttpd
-apt install -y redis
-
 # Install php 8.3 with extensions
-apt install -y php php-common libapache2-mod-php php php-cli php-common php-mysql php-xml php-mbstring php-curl php-json php-mongodb
-
-apt install memcached php-memcached
-
-apt install python3
-apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
-
-# Install SSH server
-apt install -y openssh-server
-
-
-
+apt install -y php php-common libapache2-mod-php php php-cli php-common php-mysql php-xml php-mbstring php-curl php-json php-mongodb memcached php-memcached
 
 # Set default SSH password authentication
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
