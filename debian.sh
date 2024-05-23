@@ -48,6 +48,11 @@ sudo sed -i '/<Directory \/var\/www\/html>/,/<\/Directory>/ s/AllowOverride None
 
 sudo sed -i 's/DirectoryIndex .*/DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm/g' /etc/apache2/mods-enabled/dir.conf
 
+https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-english.zip
+unzip phpMyAdmin-5.2.1-english.zip
+mv phpMyAdmin-5.2.1-english /var/www/html/pma
+rm phpMyAdmin-5.2.1-english.zip
+
 
 # Set correct permissions for /var/www/html
 chown -R www-data:www-data /var/www/html
