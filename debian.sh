@@ -5,7 +5,7 @@
 apt update -y
 apt upgrade -y
 
-apt install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg curl
+apt install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg curl unzip
 #apt install -y software-properties-common
 #add-apt-repository ppa:ondrej/php
 
