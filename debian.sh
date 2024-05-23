@@ -22,7 +22,7 @@ apt install -y lighttpd
 apt install -y redis
 
 # Install php 8.3 with extensions
-apt install -y php-common libapache2-mod-php php php-cli php-common php-mysql php-xml php-mbstring php-curl php-json php-mongodb
+apt install -y php php-common libapache2-mod-php php php-cli php-common php-mysql php-xml php-mbstring php-curl php-json php-mongodb
 
 apt install python3
 apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
