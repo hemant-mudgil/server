@@ -26,6 +26,18 @@ php composer-setup.php && \
 php -r "unlink('composer-setup.php');"
 mv composer.phar /usr/local/bin/composer
 
+# Directory containing SSH configuration files
+ssh_config_dir="/etc/ssh/sshd_config.d"
+
+# Check if directory exists and contains files
+if [ -d "$ssh_config_dir" ] && [ "$(ls -A $ssh_config_dir)" ]; then
+    echo "Configuration files found in $ssh_config_dir. Deleting them..."
+    sudo rm -f $ssh_config_dir/*
+    echo "All configuration files in $ssh_config_dir have been deleted."
+else
+    echo "No configuration files found in $ssh_config_dir."
+fi
+
 # Allow .htaccess overrides in Apache configuration
 sed -i '/<Directory \/var\/www\/html>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 sed -i 's/DirectoryIndex .*/DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm/g' /etc/apache2/mods-enabled/dir.conf
