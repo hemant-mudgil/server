@@ -7,7 +7,7 @@ apt upgrade -y
 
 apt install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg curl
 #apt install -y software-properties-common
-#add-apt-repository ppa:ondrej/php8.3
+#add-apt-repository ppa:ondrej/php
 
 # Install Apache
 apt install -y apache2
@@ -21,8 +21,8 @@ apt install -y lighttpd
 # Install Lighttpd
 apt install -y redis
 
-# Install php8.3 8.3 with extensions
-apt install -y php-common libapache2-mod-php php8.3 php8.3-cli php8.3-common php8.3-mysql php8.3-xml php8.3-mbstring php8.3-curl php8.3-json php8.3-mongodb
+# Install php 8.3 with extensions
+apt install -y php-common libapache2-mod-php php php-cli php-common php-mysql php-xml php-mbstring php-curl php-json php-mongodb
 
 apt install python3
 apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
