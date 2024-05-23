@@ -36,7 +36,9 @@ chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html
 
 # Enable SSH password authentication
-systemctl reload sshd
+systemctl enable ssh
+service ssh reload
+#systemctl reload sshd
 
 # Open port for Apache in UFW
 ufw allow 'Apache'
