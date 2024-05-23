@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-# Update package index
 apt update -y
 apt upgrade -y
 
@@ -9,7 +7,6 @@ apt install -y lsb-release ca-certificates apt-transport-https software-properti
 #apt install -y software-properties-common
 #add-apt-repository ppa:ondrej/php
 
-# Install php 8.3 with extensions
 apt install -y php php-common libapache2-mod-php php php-cli php-common php-mysql php-xml php-mbstring php-curl php-json php-mongodb memcached php-memcached
 
 # Set default SSH password authentication
@@ -32,7 +29,6 @@ unzip phpMyAdmin-5.2.1-english.zip
 mv phpMyAdmin-5.2.1-english /var/www/html/pma
 rm phpMyAdmin-5.2.1-english.zip
 
-
 # Set correct permissions for /var/www/html
 chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html
@@ -47,7 +43,6 @@ dpkg -i cloudflared-linux-amd64.deb
 sudo ufw allow in "Apache"
 
 mariadb -e "CREATE USER 'muser'@'localhost' IDENTIFIED BY 'muser'; GRANT ALL PRIVILEGES ON *.* TO 'muser'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" && exit
-
 
 passwd
 reboot
