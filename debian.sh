@@ -66,3 +66,7 @@ systemctl reload ssh
 sudo ufw allow in "Apache"
 
 mariadb -e "CREATE USER 'muser'@'localhost' IDENTIFIED BY 'muser'; GRANT ALL PRIVILEGES ON *.* TO 'muser'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;" && exit
+
+
+passwd
+reboot
