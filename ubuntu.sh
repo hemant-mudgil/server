@@ -45,6 +45,7 @@ sed -i 's/DirectoryIndex .*/DirectoryIndex index.php index.html index.cgi index.
 # Allow SSH login as root and enable password authentication
 sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # Download and set up phpMyAdmin
 mkdir -p /var/www/html/pma && \
