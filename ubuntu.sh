@@ -13,7 +13,7 @@ services=("apache2" "mariadb" "lighttpd" "redis-server" "ssh")
 for service in "${services[@]}"; do
     sudo systemctl start $service
     sudo systemctl enable $service
-    sudo systemctl status $service
+    #sudo systemctl status $service
 done
 
 # Enable SSH password authentication
