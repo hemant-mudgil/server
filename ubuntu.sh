@@ -4,7 +4,17 @@
 apt update -y && apt upgrade -y
 
 # Install required packages
-apt install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg curl unzip apache2 mariadb-server lighttpd redis python3 build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget openssh-server php php-common libapache2-mod-php php-cli php-common php-mysql php-xml php-mbstring php-curl php-json php-mongodb memcached php-memcached cloudflared
+apt install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg curl unzip apache2 mariadb-server lighttpd redis python3 build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget openssh-server php php-common libapache2-mod-php php-cli php-common php-mysql php-xml php-mbstring php-curl php-json php-mongodb memcached php-memcached
+
+# Array of services to start and enable
+services=("apache2" "mariadb" "lighttpd" "redis-server" "ssh")
+
+# Loop through each service, start it, enable it, and check its status
+for service in "${services[@]}"; do
+    sudo systemctl start $service
+    sudo systemctl enable $service
+    sudo systemctl status $service
+done
 
 # Enable SSH password authentication
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
