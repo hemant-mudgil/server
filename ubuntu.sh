@@ -69,6 +69,12 @@ else
     echo 'MaxAuthTries 3' >> /etc/ssh/sshd_config
 fi
 
+# for mysql left ram consumption, you can remove this if you have plenty of ram
+bash -c 'cat <<EOF >> /etc/mysql/my.cnf
+[mysqld]
+performance_schema = OFF
+EOF'
+
 # Restart SSH service
 systemctl reload sshd
 
