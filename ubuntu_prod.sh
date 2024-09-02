@@ -174,11 +174,10 @@ mv phpMyAdmin-5.2.1-english/* /var/www/html/pma/ && \
 rm -rf phpMyAdmin-5.2.1-english phpMyAdmin-5.2.1-english.zip
 
 # Download and install Cloudflared
-CLOUDFLARED_VERSION="2024.9.1"
-CLOUDFLARED_URL="https://github.com/cloudflare/cloudflared/releases/download/$CLOUDFLARED_VERSION/cloudflared-linux-amd64-$CLOUDFLARED_VERSION.deb"
+CLOUDFLARED_URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb"
 wget $CLOUDFLARED_URL
-dpkg -i cloudflared-linux-amd64-$CLOUDFLARED_VERSION.deb
-rm cloudflared-linux-amd64-$CLOUDFLARED_VERSION.deb
+dpkg -i cloudflared-linux-amd64.deb
+rm cloudflared-linux-amd64.deb
 
 # Enable mod_security and mod_ssl
 a2enmod security2
