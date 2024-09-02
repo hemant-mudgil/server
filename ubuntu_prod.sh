@@ -54,7 +54,6 @@ services=("apache2" "mysql" "redis-server" "ssh")
 for service in "${services[@]}"; do
     systemctl start $service
     systemctl enable $service
-    #systemctl status $service || echo "$service failed to start."
 done
 
 # Remove the /etc/ssh/sshd_config.d/60-cloudimg-settings.conf file if it exists
@@ -99,6 +98,20 @@ sed -i 's/memory_limit = .*/memory_limit = 1G/' /etc/php/$php_version/apache2/ph
 sed -i 's/max_execution_time = .*/max_execution_time = 300/' /etc/php/$php_version/apache2/php.ini
 sed -i 's/memory_limit = .*/memory_limit = 1G/' /etc/php/$php_version/cli/php.ini
 sed -i 's/max_execution_time = .*/max_execution_time = 300/' /etc/php/$php_version/cli/php.ini
+
+# Enable OPCache and set optimal values
+cat >> /etc/php/$php_version/apache2/php.ini <<EOL
+
+; Enable OPCache
+opcache.enable=1
+opcache.enable_cli=1
+opcache.memory_consumption=512
+opcache.interned_strings_buffer=64
+opcache.max_accelerated_files=10000
+opcache.revalidate_freq=2
+opcache.save_comments=1
+opcache.fast_shutdown=1
+EOL
 
 # Enable mod_rewrite and mod_php
 a2enmod rewrite
@@ -170,7 +183,10 @@ sed -i 's/;gc_divisor = .*/gc_divisor = 100/' /etc/php/$php_version/apache2/php.
 mkdir -p /var/www/html/pma && \
 wget https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-english.zip && \
 unzip phpMyAdmin-5.2.1-english.zip && \
-mv phpMyAdmin-5.2.1-english/* /var/www/html/pma/ && \
+mv phpMyAdmin-5.2.1-english/* /var/www/html/pma && \
+chown -R www-data:www-data /var/www/html/pma && \
+chmod -R 755 /var/www/html/pma
+
 rm -rf phpMyAdmin-5.2.1-english phpMyAdmin-5.2.1-english.zip
 
 # Download and install Cloudflared
@@ -178,6 +194,7 @@ CLOUDFLARED_URL="https://github.com/cloudflare/cloudflared/releases/latest/downl
 wget $CLOUDFLARED_URL
 dpkg -i cloudflared-linux-amd64.deb
 rm cloudflared-linux-amd64.deb
+
 
 # Enable mod_security and mod_ssl
 a2enmod security2
@@ -189,7 +206,8 @@ a2ensite default-ssl
 # Restart Apache server to apply changes
 systemctl restart apache2
 
-# Enable firewall and allow necessary ports
+# Enable firewall, set default deny, and allow necessary ports
+ufw default deny
 ufw allow 22
 ufw allow 80
 ufw allow 443
@@ -199,3 +217,4 @@ ufw enable
 # Please follow specific Cloudflare Turnstile installation instructions here
 
 echo "Setup complete!"
+reboot
