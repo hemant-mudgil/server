@@ -1,8 +1,14 @@
 #!/bin/bash
 
-# Ask for passwords and usernames
+# Prompt for passwords and usernames
 echo "Please enter the new Ubuntu root password:"
 read -s ubuntu_root_password
+
+echo "Please enter the new username:"
+read new_username
+
+echo "Please enter the password for the new user '$new_username':"
+read -s new_user_password
 
 echo "Please enter the MySQL root password:"
 read -s mysql_root_password
@@ -17,6 +23,14 @@ read -s mysql_password
 echo "Changing the Ubuntu root password..."
 echo "root:$ubuntu_root_password" | chpasswd
 
+# Create a new user and set a password
+echo "Creating a new user '$new_username'..."
+useradd -m -s /bin/bash $new_username
+echo "$new_username:$new_user_password" | chpasswd
+
+# Add new user to the sudo group
+usermod -aG sudo $new_username
+
 # Update system
 apt update && apt upgrade -y
 
@@ -24,10 +38,14 @@ apt update && apt upgrade -y
 ufw disable
 
 # Set PHP version
-php_version=8.3
+php_version=8.4
+
+# Add the PHP repository
+add-apt-repository ppa:ondrej/php -y
+apt update
 
 # Install Apache, MySQL, PHP, and other LAMP stack components
-apt install lsb-release ca-certificates apt-transport-https software-properties-common gnupg unzip curl apache2 mysql-server redis-server memcached php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php$php_version-imagick php$php_version-mongodb php$php_version-redis php$php_version-memcached php$php_version-gettext -y
+apt install lsb-release ca-certificates apt-transport-https software-properties-common gnupg unzip curl apache2 mariadb-server redis-server memcached php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php$php_version-imagick php$php_version-mongodb php$php_version-redis php$php_version-memcached php$php_version-gettext -y
 
 # Array of services to start and enable
 services=("apache2" "mysql" "redis-server" "ssh")
@@ -36,7 +54,6 @@ services=("apache2" "mysql" "redis-server" "ssh")
 for service in "${services[@]}"; do
     systemctl start $service
     systemctl enable $service
-    #systemctl status $service || echo "$service failed to start."
 done
 
 # Remove the /etc/ssh/sshd_config.d/60-cloudimg-settings.conf file if it exists
@@ -69,20 +86,32 @@ else
     echo 'MaxAuthTries 3' >> /etc/ssh/sshd_config
 fi
 
-# for mysql left ram consumption, you can remove this if you have plenty of ram
-bash -c 'cat <<EOF >> /etc/mysql/my.cnf
-[mysqld]
-performance_schema = OFF
-EOF'
-
-# Restart SSH service
-systemctl reload sshd
-
-# Secure MySQL installation and set root password
+# Configure MySQL to use the native password authentication plugin
 mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_root_password'; FLUSH PRIVILEGES;"
 
 # Add new MySQL user
 mysql -e "CREATE USER '$mysql_username'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_password'; GRANT ALL PRIVILEGES ON *.* TO '$mysql_username'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+# Configure PHP
+# Set PHP memory limit to 1GB and execution time to 300 seconds
+sed -i 's/memory_limit = .*/memory_limit = 1G/' /etc/php/$php_version/apache2/php.ini
+sed -i 's/max_execution_time = .*/max_execution_time = 300/' /etc/php/$php_version/apache2/php.ini
+sed -i 's/memory_limit = .*/memory_limit = 1G/' /etc/php/$php_version/cli/php.ini
+sed -i 's/max_execution_time = .*/max_execution_time = 300/' /etc/php/$php_version/cli/php.ini
+
+# Enable OPCache and set optimal values
+cat >> /etc/php/$php_version/apache2/php.ini <<EOL
+
+; Enable OPCache
+opcache.enable=1
+opcache.enable_cli=1
+opcache.memory_consumption=512
+opcache.interned_strings_buffer=64
+opcache.max_accelerated_files=10000
+opcache.revalidate_freq=2
+opcache.save_comments=1
+opcache.fast_shutdown=1
+EOL
 
 # Enable mod_rewrite and mod_php
 a2enmod rewrite
@@ -95,12 +124,8 @@ sed -i 's/index.php index.html/index.php index.html index.htm/g' /etc/apache2/mo
 sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 sed -i 's/DirectoryIndex .*/DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm/g' /etc/apache2/mods-enabled/dir.conf
 
-# Set PHP memory limit to 256MB and execution time to 120 seconds
-sed -i 's/memory_limit = .*/memory_limit = 256M/' /etc/php/$php_version/apache2/php.ini
-sed -i 's/max_execution_time = .*/max_execution_time = 120/' /etc/php/$php_version/apache2/php.ini
-
-# Set user and group ownership of HTML files to 'pc' user and group
-chown -R pc:pc /var/www/html
+# Set user and group ownership of HTML files to the new user
+chown -R $new_username:$new_username /var/www/html
 
 # Adjust permissions of HTML files
 chmod -R 755 /var/www/html
@@ -115,7 +140,7 @@ pip3 install numpy pandas matplotlib requests beautifulsoup4 flask django
 # Install MongoDB
 curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
 
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 
 apt update
 apt install mongodb-org -y
@@ -158,37 +183,38 @@ sed -i 's/;gc_divisor = .*/gc_divisor = 100/' /etc/php/$php_version/apache2/php.
 mkdir -p /var/www/html/pma && \
 wget https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-english.zip && \
 unzip phpMyAdmin-5.2.1-english.zip && \
-mv phpMyAdmin-5.2.1-english/* /var/www/html/pma/ && \
+mv phpMyAdmin-5.2.1-english/* /var/www/html/pma && \
+chown -R www-data:www-data /var/www/html/pma && \
+chmod -R 755 /var/www/html/pma
+
 rm -rf phpMyAdmin-5.2.1-english phpMyAdmin-5.2.1-english.zip
 
-# Download and install Cloudflared package
+# Download and install Cloudflared
 CLOUDFLARED_URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb"
-CLOUDFLARED_DEB="cloudflared-linux-amd64.deb"
+wget $CLOUDFLARED_URL
+dpkg -i cloudflared-linux-amd64.deb
+rm cloudflared-linux-amd64.deb
 
-echo "Downloading cloudflared package..."
-if wget -O $CLOUDFLARED_DEB $CLOUDFLARED_URL; then
-    echo "Download successful, installing cloudflared..."
-    dpkg -i $CLOUDFLARED_DEB
-    rm $CLOUDFLARED_DEB
-else
-    echo "Failed to download cloudflared package. Exiting."
-    exit 1
-fi
 
-# Enable UFW and allow necessary services
+# Enable mod_security and mod_ssl
+a2enmod security2
+a2enmod ssl
+
+# Configure SSL and enable the default SSL site
+a2ensite default-ssl
+
+# Restart Apache server to apply changes
+systemctl restart apache2
+
+# Enable firewall, set default deny, and allow necessary ports
+ufw default deny
+ufw allow 22
+ufw allow 80
+ufw allow 443
 ufw enable
-ufw allow in "Apache"
-ufw allow ssh
-ufw allow ftp
-ufw allow mail
-ufw allow smtp
-ufw allow 443/tcp  # For SSL/TLS traffic
 
-# Install Fail2Ban
-apt install fail2ban -y
-systemctl enable fail2ban
-systemctl start fail2ban
+# Enable Cloudflare Turnstile
+# Please follow specific Cloudflare Turnstile installation instructions here
 
-echo "Installation complete!"
-
+echo "Setup complete!"
 reboot
