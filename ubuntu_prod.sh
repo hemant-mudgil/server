@@ -38,13 +38,14 @@ apt update && apt upgrade -y
 ufw disable
 
 # Set PHP version
-php_version=8.4
+php_version=8.3
 
 # Add the PHP repository
 add-apt-repository ppa:ondrej/php -y
 apt update
 
 # Install Apache, MySQL, PHP, and other LAMP stack components
+#apt install lsb-release ca-certificates apt-transport-https software-properties-common gnupg unzip curl apache2 mariadb-server redis-server memcached php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php-imagick php-mongodb php-redis php-memcached gettext -y
 apt install lsb-release ca-certificates apt-transport-https software-properties-common gnupg unzip curl apache2 mariadb-server redis-server memcached php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php-imagick php-mongodb php-redis php-memcached gettext -y
 
 # Array of services to start and enable
