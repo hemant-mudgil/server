@@ -93,26 +93,62 @@ mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY
 # Add new MySQL user
 mysql -e "CREATE USER '$mysql_username'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_password'; GRANT ALL PRIVILEGES ON *.* TO '$mysql_username'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
-# Configure PHP
-# Set PHP memory limit to 1GB and execution time to 300 seconds
-sed -i 's/memory_limit = .*/memory_limit = 1G/' /etc/php/$php_version/apache2/php.ini
-sed -i 's/max_execution_time = .*/max_execution_time = 300/' /etc/php/$php_version/apache2/php.ini
-sed -i 's/memory_limit = .*/memory_limit = 1G/' /etc/php/$php_version/cli/php.ini
-sed -i 's/max_execution_time = .*/max_execution_time = 300/' /etc/php/$php_version/cli/php.ini
+#php_version=$(php -v | grep -oP '^PHP \K[0-9]+\.[0-9]+');
 
-# Enable OPCache and set optimal values
-cat >> /etc/php/$php_version/apache2/php.ini <<EOL
+# Define PHP configuration path
+php_ini_path="/etc/php/$php_version"
 
-; Enable OPCache
-opcache.enable=1
-opcache.enable_cli=1
-opcache.memory_consumption=512
-opcache.interned_strings_buffer=64
-opcache.max_accelerated_files=10000
-opcache.revalidate_freq=2
-opcache.save_comments=1
-opcache.fast_shutdown=1
-EOL
+# Function to update or uncomment and modify a configuration setting in a php.ini file
+update_or_add_setting() {
+    local file="$1"
+    local setting="$2"
+    local value="$3"
+
+    # Check for commented-out settings and uncomment if found
+    if grep -q "^;$setting" "$file"; then
+        # Uncomment and update existing setting
+        sed -i "s/^;$setting/$setting/" "$file"
+        sed -i "s/^$setting.*/$setting = $value/" "$file"
+    elif grep -q "^$setting" "$file"; then
+        # Update existing setting
+        sed -i "s/^$setting.*/$setting = $value/" "$file"
+    else
+        # Add new setting at the end of the file
+        echo "$setting = $value" >> "$file"
+    fi
+}
+
+# Array of settings to update
+settings=(
+    "memory_limit=1G"
+    "max_execution_time=300"
+    "max_input_time=300"
+    "post_max_size=1G"
+    "upload_max_filesize=1G"
+    "default_socket_timeout=30"
+    "gc_probability=1"
+    "gc_divisor=100"
+    "opcache.enable=1"
+    "opcache.enable_cli=1"
+    "opcache.memory_consumption=512"
+    "opcache.interned_strings_buffer=64"
+    "opcache.max_accelerated_files=10000"
+    "opcache.revalidate_freq=2"
+    "opcache.save_comments=1"
+    "opcache.fast_shutdown=1"
+    "session.gc_maxlifetime=1440"  # 24 minutes
+    "session.gc_probability=1"
+    "session.gc_divisor=100"
+)
+
+# Update or add PHP configuration settings for Apache and CLI
+for conf_file in apache2/php.ini cli/php.ini; do
+    for setting in "${settings[@]}"; do
+        key=$(echo "$setting" | cut -d= -f1)
+        value=$(echo "$setting" | cut -d= -f2-)
+        update_or_add_setting "$php_ini_path/$conf_file" "$key" "$value"
+    done
+done
 
 # Enable mod_rewrite and mod_php
 a2enmod rewrite
@@ -175,10 +211,6 @@ php composer-setup.php --quiet
 RESULT=$?
 rm composer-setup.php
 mv composer.phar /usr/local/bin/composer
-
-# Set PHP garbage collection probability for clearing garbage periodically
-sed -i 's/;gc_probability = .*/gc_probability = 1/' /etc/php/$php_version/apache2/php.ini
-sed -i 's/;gc_divisor = .*/gc_divisor = 100/' /etc/php/$php_version/apache2/php.ini
 
 # Download and set up phpMyAdmin
 mkdir -p /var/www/html/pma && \
