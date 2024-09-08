@@ -1,23 +1,49 @@
 #!/bin/bash
 
-# Prompt for passwords and usernames
-echo "Please enter the new Ubuntu root password:"
+# Function to generate a random password
+generate_password() {
+  local length=16
+  local chars='A-Za-z0-9@#$'
+  < /dev/urandom tr -dc "$chars" | head -c "$length"
+}
+
+# Default values
+default_ubuntu_root_password=$(generate_password)
+default_new_username="pc"
+default_new_user_password=$(generate_password)
+default_mysql_root_password=$(generate_password)
+default_mysql_username="muser"
+default_mysql_password=$(generate_password)
+
+# Prompt for Ubuntu root password
+echo "Please enter the new Ubuntu root password (default: $default_ubuntu_root_password):"
 read -s ubuntu_root_password
+ubuntu_root_password=${ubuntu_root_password:-$default_ubuntu_root_password}
 
-echo "Please enter the new username:"
+# Prompt for new username
+echo "Please enter the new username (default: $default_new_username):"
 read new_username
+new_username=${new_username:-$default_new_username}
 
-echo "Please enter the password for the new user '$new_username':"
+# Prompt for new user password
+echo "Please enter the password for the new user '$new_username' (default: $default_new_user_password):"
 read -s new_user_password
+new_user_password=${new_user_password:-$default_new_user_password}
 
-echo "Please enter the MySQL root password:"
+# Prompt for MySQL root password
+echo "Please enter the MySQL root password (default: $default_mysql_root_password):"
 read -s mysql_root_password
+mysql_root_password=${mysql_root_password:-$default_mysql_root_password}
 
-echo "Please enter the MySQL username:"
+# Prompt for MySQL username
+echo "Please enter the MySQL username (default: $default_mysql_username):"
 read mysql_username
+mysql_username=${mysql_username:-$default_mysql_username}
 
-echo "Please enter the MySQL password for user '$mysql_username':"
+# Prompt for MySQL user password
+echo "Please enter the MySQL password for user '$mysql_username' (default: $default_mysql_password):"
 read -s mysql_password
+mysql_password=${mysql_password:-$default_mysql_password}
 
 # Update Ubuntu root password
 echo "Changing the Ubuntu root password..."
