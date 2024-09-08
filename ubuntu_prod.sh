@@ -154,6 +154,9 @@ done
 a2enmod rewrite
 a2enmod mpm_itk
 a2enmod php$php_version
+a2enmod security2
+a2enmod ssl
+a2ensite default-ssl
 
 # Set PHP file to be executed first
 sed -i 's/index.php index.html/index.php index.html index.htm/g' /etc/apache2/mods-enabled/dir.conf
@@ -230,14 +233,6 @@ CLOUDFLARED_URL="https://github.com/cloudflare/cloudflared/releases/latest/downl
 wget $CLOUDFLARED_URL
 dpkg -i cloudflared-linux-amd64.deb
 rm cloudflared-linux-amd64.deb
-
-
-# Enable mod_security and mod_ssl
-a2enmod security2
-a2enmod ssl
-
-# Configure SSL and enable the default SSL site
-a2ensite default-ssl
 
 # Restart Apache server to apply changes
 systemctl restart apache2
