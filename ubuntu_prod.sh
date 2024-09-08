@@ -2,7 +2,7 @@
 
 # Function to generate a random password
 generate_password() {
-  local length=16
+  local length=20
   local chars='A-Za-z0-9@#$'
   < /dev/urandom tr -dc "$chars" | head -c "$length"
 }
