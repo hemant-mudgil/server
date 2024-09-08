@@ -72,7 +72,7 @@ apt update
 
 # Install Apache, MySQL, PHP, and other LAMP stack components
 #apt install lsb-release ca-certificates apt-transport-https software-properties-common gnupg unzip curl apache2 mariadb-server redis-server memcached php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php-imagick php-mongodb php-redis php-memcached gettext -y
-apt install ssh nano sudo htop rsync wget lsb-release ca-certificates apt-transport-https software-properties-common gnupg ufw zip unzip curl python3 python3-pip python3-venv apache2 mariadb-server redis-server memcached libapache2-mod-security2 php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php-imagick php-mongodb php-redis php-memcached libapache2-mpm-itk gettext -y
+apt install ssh nano sudo htop coreutils rsync wget lsb-release ca-certificates apt-transport-https software-properties-common gnupg ufw zip unzip curl python3 python3-pip python3-venv apache2 mariadb-server redis-server memcached libapache2-mod-security2 php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php-imagick php-mongodb php-redis php-memcached libapache2-mpm-itk gettext -y
 
 # Array of services to start and enable
 services=("apache2" "mysql" "redis-server" "ssh")
