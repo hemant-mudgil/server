@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Ensure the script is run as root
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script must be run as root. Exiting."
+    exit 1
+fi
+
+# File to store the passwords and usernames
+save_location="/root/credentials.txt"
+
 # Function to generate a random password
 generate_password() {
   local length=20
@@ -44,6 +53,22 @@ mysql_username=${mysql_username:-$default_mysql_username}
 echo "Please enter the MySQL password for user '$mysql_username' (default: $default_mysql_password):"
 read -s mysql_password
 mysql_password=${mysql_password:-$default_mysql_password}
+
+# Save all credentials to a JSON file
+echo "Saving credentials to $save_location..."
+cat "<<EOL > "$save_location"
+{
+    "Ubuntu Root Password": "$ubuntu_root_password",
+    "New Username": "$new_username",
+    "New User Password": "$new_user_password",
+    "MySQL Root Password": "$mysql_root_password",
+    "MySQL Username": "$mysql_username",
+    "MySQL User Password": "$mysql_password"
+}
+EOL"
+
+# Set permissions to protect the credentials file
+chmod 600 "$save_location"
 
 # Update Ubuntu root password
 echo "Changing the Ubuntu root password..."
