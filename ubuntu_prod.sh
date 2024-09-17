@@ -56,7 +56,7 @@ mysql_password=${mysql_password:-$default_mysql_password}
 
 # Save all credentials to a JSON file
 echo "Saving credentials to $save_location..."
-cat "<<EOL > "$save_location"
+cat <<EOL > "$save_location"
 {
     "Ubuntu Root Password": "$ubuntu_root_password",
     "New Username": "$new_username",
@@ -65,10 +65,11 @@ cat "<<EOL > "$save_location"
     "MySQL Username": "$mysql_username",
     "MySQL User Password": "$mysql_password"
 }
-EOL"
+EOL
 
 # Set permissions to protect the credentials file
 chmod 600 "$save_location"
+
 
 # Update Ubuntu root password
 echo "Changing the Ubuntu root password..."
