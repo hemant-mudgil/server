@@ -310,15 +310,21 @@ rm cloudflared-linux-amd64.deb
 # Restart Apache server to apply changes
 systemctl restart apache2
 
-# Enable firewall, set default deny, and allow necessary ports
+# Enable UFW and allow necessary services
 ufw default deny
-ufw allow 22
-ufw allow 80
-ufw allow 443
+ufw allow in "Apache"
+ufw allow ssh
+ufw allow ftp
+ufw allow mail
+ufw allow smtp
+ufw allow 443/tcp  # For SSL/TLS traffic
 ufw enable
 
-# Enable Cloudflare Turnstile
-# Please follow specific Cloudflare Turnstile installation instructions here
+# Install Fail2Ban
+apt install fail2ban -y
+systemctl enable fail2ban
+systemctl start fail2ban
 
-echo "Setup complete!"
+echo "Installation complete!"
+
 reboot
