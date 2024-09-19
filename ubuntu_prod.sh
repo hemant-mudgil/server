@@ -145,12 +145,30 @@ if ! systemctl is-active --quiet mysql; then
 fi
 
 # Configure MySQL to use the native password authentication plugin
-echo "Configuring MySQL root user..."
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_root_password'; FLUSH PRIVILEGES;"
+#echo "Configuring MySQL root user..."
+#mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_root_password'; FLUSH PRIVILEGES;"
 
 # Add new MySQL user
-echo "Creating MySQL user '$mysql_username'..."
-mysql -e "CREATE USER '$mysql_username'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_password'; GRANT ALL PRIVILEGES ON *.* TO '$mysql_username'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+#echo "Creating MySQL user '$mysql_username'..."
+#mysql -e "CREATE USER '$mysql_username'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_password'; GRANT ALL PRIVILEGES ON *.* TO '$mysql_username'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+# Update root user password
+echo "Configuring MariaDB root user..."
+mysql -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$mysql_root_password'); FLUSH PRIVILEGES;"
+
+if [ $? -ne 0 ]; then
+    echo "Failed to configure MariaDB root user. Please check MariaDB service and credentials."
+    exit 1
+fi
+
+# Create new user and grant privileges
+echo "Creating MariaDB user '$mysql_username'..."
+mysql -e "CREATE USER '$mysql_username'@'localhost' IDENTIFIED BY '$mysql_password'; GRANT ALL PRIVILEGES ON *.* TO '$mysql_username'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+if [ $? -ne 0 ]; then
+    echo "Failed to create MariaDB user. Please check MariaDB service and credentials."
+    exit 1
+fi
 
 # Define PHP configuration path
 php_ini_path="/etc/php/$php_version"
