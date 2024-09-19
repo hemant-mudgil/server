@@ -70,7 +70,6 @@ EOL
 # Set permissions to protect the credentials file
 chmod 600 "$save_location"
 
-
 # Update Ubuntu root password
 echo "Changing the Ubuntu root password..."
 echo "root:$ubuntu_root_password" | chpasswd
@@ -96,8 +95,7 @@ php_version=8.3
 add-apt-repository ppa:ondrej/php -y
 apt update
 
-# Install Apache, MySQL, PHP, and other LAMP stack components
-#apt install lsb-release ca-certificates apt-transport-https software-properties-common gnupg unzip curl apache2 mariadb-server redis-server memcached php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php-imagick php-mongodb php-redis php-memcached gettext -y
+# Install necessary packages
 apt install ssh nano sudo htop coreutils rsync wget lsb-release ca-certificates apt-transport-https software-properties-common gnupg ufw zip unzip curl python3 python3-pip python3-venv apache2 mariadb-server redis-server memcached libapache2-mod-security2 php$php_version libapache2-mod-php$php_version php$php_version-mysql php$php_version-cli php$php_version-mbstring php$php_version-xml php$php_version-curl php$php_version-zip php$php_version-gd php-imagick php-mongodb php-redis php-memcached libapache2-mpm-itk gettext -y
 
 # Array of services to start and enable
@@ -139,13 +137,20 @@ else
     echo 'MaxAuthTries 3' >> /etc/ssh/sshd_config
 fi
 
+# Ensure MySQL is running
+echo "Checking MySQL service status..."
+if ! systemctl is-active --quiet mysql; then
+    echo "MySQL is not running. Starting MySQL service..."
+    systemctl start mysql
+fi
+
 # Configure MySQL to use the native password authentication plugin
+echo "Configuring MySQL root user..."
 mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_root_password'; FLUSH PRIVILEGES;"
 
 # Add new MySQL user
+echo "Creating MySQL user '$mysql_username'..."
 mysql -e "CREATE USER '$mysql_username'@'localhost' IDENTIFIED WITH mysql_native_password BY '$mysql_password'; GRANT ALL PRIVILEGES ON *.* TO '$mysql_username'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-
-#php_version=$(php -v | grep -oP '^PHP \K[0-9]+\.[0-9]+');
 
 # Define PHP configuration path
 php_ini_path="/etc/php/$php_version"
@@ -237,7 +242,7 @@ sudo apt-get update
 sudo apt-get install -y mongodb-org
 sudo systemctl start mongod
 sudo systemctl daemon-reload
-sudo systemctl status mongod
+# sudo systemctl status mongod
 sudo systemctl enable mongod
 
 # Configure MongoDB to listen on all network interfaces and disable SSL encryption
