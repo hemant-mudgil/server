@@ -1,35 +1,14 @@
 #!/bin/bash
 
 # Prompt for passwords and usernames
-echo "Please enter the new Ubuntu root password:"
-read -s ubuntu_root_password
-
-echo "Please enter the new username:"
-read new_username
-
-echo "Please enter the password for the new user '$new_username':"
-read -s new_user_password
-
-echo "Please enter the MySQL root password:"
-read -s mysql_root_password
-
-echo "Please enter the MySQL username:"
-read mysql_username
-
-echo "Please enter the MySQL password for user '$mysql_username':"
-read -s mysql_password
+ubuntu_root_password=root
+mysql_root_password=muser
+mysql_username=muser
+mysql_password=muser
 
 # Update Ubuntu root password
 echo "Changing the Ubuntu root password..."
 echo "root:$ubuntu_root_password" | chpasswd
-
-# Create a new user and set a password
-echo "Creating a new user '$new_username'..."
-useradd -m -s /bin/bash $new_username
-echo "$new_username:$new_user_password" | chpasswd
-
-# Add new user to the sudo group
-usermod -aG sudo $new_username
 
 # Update system
 apt update && apt upgrade -y
@@ -78,13 +57,6 @@ if grep -q '^PermitRootLogin' /etc/ssh/sshd_config; then
     sed -i '/^PermitRootLogin/c\PermitRootLogin yes' /etc/ssh/sshd_config
 else
     echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
-fi
-
-# Set MaxAuthTries to 3
-if grep -q '^MaxAuthTries' /etc/ssh/sshd_config; then
-    sed -i '/^MaxAuthTries/c\MaxAuthTries 3' /etc/ssh/sshd_config
-else
-    echo 'MaxAuthTries 3' >> /etc/ssh/sshd_config
 fi
 
 # Configure MySQL to use the native password authentication plugin
@@ -240,13 +212,6 @@ a2ensite default-ssl
 
 # Restart Apache server to apply changes
 systemctl restart apache2
-
-# Enable firewall, set default deny, and allow necessary ports
-ufw default deny
-ufw allow 22
-ufw allow 80
-ufw allow 443
-ufw enable
 
 # Enable Cloudflare Turnstile
 # Please follow specific Cloudflare Turnstile installation instructions here
