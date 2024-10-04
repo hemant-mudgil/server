@@ -195,11 +195,11 @@ update_or_add_setting() {
 
 # Array of settings to update
 settings=(
-    "memory_limit=1G"
+    "memory_limit=900M"
     "max_execution_time=300"
     "max_input_time=300"
-    "post_max_size=1G"
-    "upload_max_filesize=1G"
+    "post_max_size=900M"
+    "upload_max_filesize=900M"
     "default_socket_timeout=30"
     "gc_probability=1"
     "gc_divisor=100"
