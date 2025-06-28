@@ -5,17 +5,22 @@ apt update -y
 apt upgrade -y
 
 # === Install essentials ===
-apt install -y lsb-release curl wget gnupg ca-certificates apt-transport-https unzip apache2 mariadb-server php unzip openssh-server
+apt install -y lsb-release curl wget gnupg ca-certificates apt-transport-https unzip apache2 mariadb-server openssh-server
 
 # === Add Sury repo for PHP 8.3 ===
 wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
 echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
 apt update -y
 
-# === Install PHP 8.3 with common extensions ===
+# === Install Python 3 ===
+apt install -y python3 python3-pip
+
+# === Install PHP 8.3 with all modules ===
 apt install -y php8.3 php8.3-cli php8.3-common libapache2-mod-php8.3 \
 php8.3-mysql php8.3-xml php8.3-mbstring php8.3-curl php8.3-zip php8.3-gd \
-php8.3-intl php8.3-bcmath php8.3-soap php8.3-readline php8.3-opcache php8.3-imap php8.3-ldap php8.3-dev php8.3-cli php8.3-fpm php8.3-phpdbg php8.3-sqlite3
+php8.3-intl php8.3-bcmath php8.3-soap php8.3-readline php8.3-opcache \
+php8.3-imap php8.3-ldap php8.3-dev php8.3-fpm php8.3-phpdbg php8.3-sqlite3
+
 
 # === Enable all useful Apache modules ===
 a2enmod rewrite ssl headers deflate mime setenvif filter dir env status \
@@ -111,6 +116,3 @@ echo "root:root" | chpasswd
 # === Restart services ===
 systemctl restart ssh
 systemctl reload apache2
-
-# === Reboot to finish ===
-reboot
