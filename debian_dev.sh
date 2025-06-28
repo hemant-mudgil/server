@@ -99,6 +99,3 @@ echo "root:root" | chpasswd
 
 # === Restart SSH to apply settings ===
 systemctl restart ssh
-
-# === Reboot to finish ===
-reboot
