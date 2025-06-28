@@ -5,7 +5,7 @@ apt update -y
 apt upgrade -y
 
 # === Install essentials ===
-apt install -y lsb-release curl wget gnupg ca-certificates apt-transport-https unzip apache2 mariadb-server openssh-server
+apt install -y lsb-release curl wget gnupg ca-certificates apt-transport-https unzip apache2 mariadb-server openssh-server htop nano
 
 # === Add Sury repo for PHP 8.3 ===
 wget -qO /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
