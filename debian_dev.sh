@@ -3,7 +3,9 @@ set -e
 
 # === Update & install lsb-release first ===
 apt update -y
-apt install -y lsb-release curl wget gnupg software-properties-common ca-certificates apt-transport-https unzip
+apt upgrade -y
+apt install -y lsb-release curl wget gnupg ca-certificates apt-transport-https unzip
+
 
 # === Remove bad PHP list if exists ===
 rm -f /etc/apt/sources.list.d/php.list
@@ -75,6 +77,16 @@ php composer-setup.php
 php -r "unlink('composer-setup.php');"
 mv composer.phar /usr/local/bin/composer
 
+
+# === Install WP-CLI globally ===
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+chmod +x wp-cli.phar
+mv wp-cli.phar /usr/local/bin/wp
+
+# Verify installation
+wp --info
+
+
 # === MariaDB dev user ===
 mariadb -e "CREATE USER IF NOT EXISTS 'muser'@'localhost' IDENTIFIED BY 'muser'; GRANT ALL PRIVILEGES ON *.* TO 'muser'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
@@ -83,6 +95,3 @@ echo "root:root" | chpasswd
 
 # === Restart SSH ===
 systemctl restart ssh
-
-echo "✅ Done. Access phpMyAdmin: http://<your-ip>/pma"
-reboot
